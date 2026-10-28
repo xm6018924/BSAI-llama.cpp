@@ -13,7 +13,7 @@ BSAI 全家桶 · ComfyUI 本地 llama.cpp 推理插件（最小实现）
 
 二进制包（llama-cli / llama-server 等 56 个文件，含 CUDA 12 运行时）由夸克网盘分发：
 
-**夸克网盘下载链接：** `（待上传后填写）`
+**夸克网盘下载链接：** https://pan.quark.cn/s/32be06b9c764（文件夹「BSAI-llama.cpp」，约 557 MB zip）
 
 **下载后：** 将压缩包内全部文件解压到插件目录，最终目录结构应如下：
 
