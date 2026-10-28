@@ -1,0 +1,18 @@
+# 二进制包（725MB）由夸克网盘分发下载，不进仓库
+*.dll
+*.exe
+*.pdb
+*.bin
+*.so
+*.dylib
+*.a
+*.lib
+*.exp
+*.pdb
+
+# 模型与缓存
+*.gguf
+*.ggml
+__pycache__/
+*.pyc
+*.log
