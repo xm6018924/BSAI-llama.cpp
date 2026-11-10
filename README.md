@@ -62,8 +62,7 @@ is distributed via Quark Netdisk: **https://pan.quark.cn/s/32be06b9c764** → fo
 
 ```
 ComfyUI\custom_nodes\BSAI-llama.cpp\
-├── __init__.py            ← 本仓库 / from this repo
-├── nodes.py               ← 本仓库 / from this repo
+├── __init__.py            ← 本仓库 / from this repo（插件入口 + 节点）
 ├── bsai_engine_select.py  ← 本仓库 / from this repo（引擎选型器）
 ├── llama-cli.exe          ← 二进制包 / from the bundle
 ├── llama-server.exe
