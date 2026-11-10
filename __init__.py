@@ -9,15 +9,38 @@ v1.0.0 (2026-10-28)
 import os
 import shutil
 import subprocess
+import sys
 
 NODE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+if NODE_DIR not in sys.path:
+    sys.path.insert(0, NODE_DIR)
+
+# 多代显卡支持：插件根是 CUDA 13 构建（sm_86/89/120），engine-cuda12/ 是
+# CUDA 12.4 构建（sm_50…89，驱动门槛更低，覆盖 30 系/20 系/16 系老驱动）。
+# 具体用哪一个由 bsai_engine_select 按“显卡算力 + 驱动版本”决定。
+ENGINE_DIR = NODE_DIR
+
+
+def resolve_engine_dir():
+    """当前应使用的 llama.cpp 引擎目录（绝对路径）。"""
+    global ENGINE_DIR
+    try:
+        import bsai_engine_select as _sel
+        ENGINE_DIR = _sel.resolve_engine_dir()
+    except Exception as exc:  # 选择器出问题时不影响节点可用性
+        print(f"[BSAI-llama] 引擎选择器不可用，回退插件根目录: {exc}")
+        ENGINE_DIR = NODE_DIR
+    return ENGINE_DIR
+
 
 def resolve_llama_cli():
-    """优先使用插件目录内捆绑的 llama-cli.exe，其次回退到 PATH。"""
-    local = os.path.join(NODE_DIR, "llama-cli.exe")
-    if os.path.isfile(local):
-        return local
+    """优先使用选定引擎目录内的 llama-cli.exe，其次插件根，最后回退到 PATH。"""
+    cli_name = "llama-cli.exe"
+    for d in (resolve_engine_dir(), NODE_DIR):
+        local = os.path.join(d, cli_name)
+        if os.path.isfile(local):
+            return local
     for name in ("llama-cli", "llama-cli.exe"):
         found = shutil.which(name)
         if found:

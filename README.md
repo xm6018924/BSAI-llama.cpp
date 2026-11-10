@@ -86,6 +86,48 @@ git clone https://github.com/xm6018924/BSAI-llama.cpp.git
 
 ---
 
+## 6. 多代显卡引擎 / Multi-generation GPU engines
+
+三档引擎，按“显卡算力 + 驱动版本”自动选，结果写进 `engine-selection.json`：
+
+| 目录 | 后端 | 覆盖算力 | 最低驱动 | 体积 |
+|---|---|---|---|---|
+| 插件根（默认） | CUDA 13.0 | sm_86 / 89 / 120 / 121 | 580.65 | 已随包 |
+| `engine-cuda12\` | CUDA 12.4 | sm_50 / 61 / 70 / 75 / 80 / 90 | 525.60 | ≈660 MB |
+| `engine-vulkan\` | Vulkan | 任意（与算力无关） | 470 | ≈40 MB |
+
+> 注意：官方 CUDA 12.4 构建的 cubin **只编译到 sm_90，不含 sm_86 / sm_89**。
+> 所以 30 系（sm_86）的可用性取决于驱动：驱动 ≥ 580.65 走根目录的 CUDA 13 构建（实测 8B Q4
+> pp 963 / tg 38.4 t/s），驱动不够时才落到 `engine-vulkan`——它能加载、能出字，但本机实测解码
+> 只有 0.73 t/s（比纯 CPU 的 3.84 t/s 还慢），只能算“先让它能跑”。**30 系建议直接升驱动。**
+> 另外 NVFP4 / `.ninfer` 量化在 Ampere 没有对应算力，30 系请使用 GGUF 权重。
+
+选型结果同样被 Flint（8082）、Nemotron（8085）和模型管理器读取，不需要分别配置：
+
+```
+BSAI-llama.cpp\
+├── llama-server.exe …      ← CUDA 13 构建（默认）
+├── engine-cuda12\          ← CUDA 12.4 构建（20 系 / 16 系 + 中版本驱动）
+├── engine-vulkan\          ← Vulkan 构建（30 系旧驱动 / 算力未覆盖时兜底）
+├── bsai_engine_select.py   ← 选型器（nvidia-smi 算力 + 驱动 → 选目录）
+├── engine-matrix.json      ← 各引擎探测出的能力表（自动生成）
+└── engine-selection.json   ← 当前选中的引擎（自动生成，可手工改）
+```
+
+手动切换：
+
+```bat
+python bsai_engine_select.py --engine auto            :: 恢复自动（按算力/驱动）
+python bsai_engine_select.py --engine engine-vulkan   :: 30 系旧驱动可强制走 Vulkan
+python bsai_engine_select.py --engine engine-cuda12   :: 强制 CUDA 12.4 构建
+python bsai_engine_select.py --show                   :: 只打印探测结果，不改配置
+```
+
+`engine-cuda12\` 与 `engine-vulkan\` 不随 git 分发：同目录执行 `下载CUDA12引擎.bat`
+即可从官方 b12224 版本（经 gh-proxy 镜像）把两档一并补齐（已存在则跳过）。
+
+---
+
 ## License
 
 MIT（本仓库代码部分）；llama.cpp 二进制版权归 llama.cpp 项目所有（MIT）。

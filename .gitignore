@@ -16,3 +16,12 @@
 __pycache__/
 *.pyc
 *.log
+
+# 引擎选型结果与本地覆盖（每台机器不同，不随仓库分发）
+engine-selection.json
+engine-matrix.json
+engine-force.txt
+
+# 扩展引擎目录（二进制由 下载CUDA12引擎.bat 从官方 b12224 获取）
+engine-cuda12/
+engine-vulkan/
